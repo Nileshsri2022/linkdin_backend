@@ -6,16 +6,8 @@ const path = require('path');
 
 const router = express.Router();
 
-// Configure multer for file uploads
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, 'uploads/');
-  },
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + path.extname(file.originalname));
-  }
-});
-const upload = multer({ storage });
+// Use the upload middleware from server.js
+const upload = require('../server').upload;
 
 // Get all posts (public feed)
 router.get('/', async (req, res) => {
@@ -34,13 +26,22 @@ router.get('/', async (req, res) => {
 // Create a post
 router.post('/', auth, upload.single('image'), async (req, res) => {
   try {
+    console.log('Auth header:', req.headers.authorization);
+    console.log('Creating post, req.file:', req.file);
+    console.log('req.body:', req.body);
+    console.log('Cloudinary upload result:', req.file);
+
     const postData = {
       text: req.body.text,
       user: req.user._id,
     };
 
     if (req.file) {
-      postData.image = `/uploads/${req.file.filename}`;
+      postData.image = req.file.path; // Cloudinary URL
+      console.log('Cloudinary Image URL:', req.file.path);
+      console.log('Full Cloudinary response:', req.file);
+    } else {
+      console.log('No image file received');
     }
 
     const post = new Post(postData);
@@ -48,6 +49,7 @@ router.post('/', auth, upload.single('image'), async (req, res) => {
     await post.populate('user', 'name');
     res.status(201).send(post);
   } catch (error) {
+    console.error('Error in post creation:', error);
     res.status(400).send(error);
   }
 });
