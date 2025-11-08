@@ -5,7 +5,26 @@ const auth = require('../middleware/auth');
 const router = express.Router();
 
 // Import upload middleware from server.js
-const { upload } = require('../server');
+const multer = require('multer');
+const cloudinary = require('cloudinary').v2;
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
+
+// Configure Cloudinary
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
+// Configure multer for Cloudinary
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'posts',
+    allowed_formats: ['jpg', 'png', 'jpeg', 'gif'],
+  },
+});
+const upload = multer({ storage });
 
 // Get all posts (public feed)
 router.get('/', async (req, res) => {
