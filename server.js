@@ -24,7 +24,7 @@ app.use(cors());
 app.use(express.json());
 
 // Export upload middleware for use in routes
-module.exports.upload = upload;
+module.exports = { upload };
 
 // Configure multer for Cloudinary
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
@@ -49,6 +49,8 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb+srv://nileshsrivastava51273
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/posts', require('./routes/posts'));
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
+
+module.exports = { upload, server };

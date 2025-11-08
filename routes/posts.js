@@ -1,13 +1,11 @@
 const express = require('express');
 const Post = require('../models/Post');
 const auth = require('../middleware/auth');
-const multer = require('multer');
-const path = require('path');
 
 const router = express.Router();
 
-// Use the upload middleware from server.js
-const upload = require('../server').upload;
+// Import upload middleware from server.js
+const { upload } = require('../server');
 
 // Get all posts (public feed)
 router.get('/', async (req, res) => {
